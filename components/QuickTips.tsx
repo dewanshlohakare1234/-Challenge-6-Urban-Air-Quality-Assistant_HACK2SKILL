@@ -1,86 +1,110 @@
-"use client";
+'use client';
 
-const AIR_TIPS = [
+const TIPS = [
   {
-    icon: "🪴",
-    title: "NASA Phytoremediation",
-    badge: "Indoor Hack",
-    badgeColor: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    desc: "Spider plants and Peace Lilies absorb up to 87% of indoor volatile toxins within 24 hours.",
+    emoji: '🌿',
+    title: 'Air Purifying Plants',
+    category: 'Indoor',
+    categoryColor: '#10b981',
+    categoryBg: '#d1fae5',
+    desc: 'Spider plants & peace lilies can remove up to 87% of air toxins in 24hrs',
   },
   {
-    icon: "🌀",
-    title: "DIY Box-Fan Filter",
-    badge: "Budget Saver",
-    badgeColor: "bg-indigo-50 text-indigo-700 border-indigo-200",
-    desc: "Taping a MERV-13 furnace filter to a standard box fan achieves ~80% of a commercial HEPA filter's capture rate.",
+    emoji: '🌙',
+    title: 'Night Routine',
+    category: 'Sleep',
+    categoryColor: '#6366f1',
+    categoryBg: '#e0e7ff',
+    desc: 'Run your air purifier on high for 1hr before bedtime, then switch to silent mode',
   },
   {
-    icon: "🍳",
-    title: "Kitchen Exhaust Rule",
-    badge: "Cooking Safety",
-    badgeColor: "bg-amber-50 text-amber-700 border-amber-200",
-    desc: "Turn on range hood 1 minute before lighting gas burners to prevent toxic NO₂ accumulation exceeding outdoor limits.",
+    emoji: '🍳',
+    title: 'Cooking Tip',
+    category: 'Kitchen',
+    categoryColor: '#f59e0b',
+    categoryBg: '#fef3c7',
+    desc: 'Always use your exhaust fan while cooking — gas stoves emit NO₂ comparable to outdoor traffic',
   },
   {
-    icon: "🪟",
-    title: "Ventilation Window",
-    badge: "Daily Routine",
-    badgeColor: "bg-sky-50 text-sky-700 border-sky-200",
-    desc: "Avoid early morning ventilation during winter thermal inversions. Air rooms between 12:00 PM and 2:30 PM.",
+    emoji: '💨',
+    title: 'Ventilation Window',
+    category: 'Home',
+    categoryColor: '#0ea5e9',
+    categoryBg: '#e0f2fe',
+    desc: 'Air out your home between 11am–2pm when pollution levels are typically lower',
   },
   {
-    icon: "😷",
-    title: "N95 Seal Importance",
-    badge: "Commute",
-    badgeColor: "bg-rose-50 text-rose-700 border-rose-200",
-    desc: "Surgical masks allow 50%+ particle leakage around the cheeks. A sealed N95/FFP2 blocks 95%+ of PM2.5.",
+    emoji: '😷',
+    title: 'Mask Guidance',
+    category: 'Protection',
+    categoryColor: '#ef4444',
+    categoryBg: '#fee2e2',
+    desc: 'N95/KN95 masks block 95% of PM2.5 particles — surgical masks only block ~50%',
   },
   {
-    icon: "🧹",
-    title: "Wet Mop Protocol",
-    badge: "Household",
-    badgeColor: "bg-purple-50 text-purple-700 border-purple-200",
-    desc: "Never dry sweep indoors during smog season; it resuspends heavy toxic settled dust into children's breathing zone.",
+    emoji: '🚿',
+    title: 'After Outdoors',
+    category: 'Hygiene',
+    categoryColor: '#8b5cf6',
+    categoryBg: '#ede9fe',
+    desc: 'Shower and change clothes after prolonged outdoor exposure on high-AQI days',
   },
 ];
 
 export default function QuickTips() {
   return (
-    <div className="card-subtle rounded-3xl p-6 bg-white">
-      <div className="flex items-center justify-between mb-4">
+    <div style={{
+      background: '#fff', borderRadius: 20,
+      boxShadow: '0 4px 24px rgba(124,58,237,0.08)',
+      border: '1px solid #ede9fe', overflow: 'hidden',
+    }}>
+      {/* Header */}
+      <div style={{
+        background: 'linear-gradient(135deg, #faf5ff, #f0f9ff)',
+        padding: '16px 20px',
+        borderBottom: '1px solid #f3f0ff',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      }}>
         <div>
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-            Science-Backed Hacks
-          </span>
-          <h3 className="text-lg font-bold text-slate-900 mt-0.5">Household Air Defenses</h3>
+          <div style={{ fontSize: 11, fontWeight: 700, color: '#7c3aed', letterSpacing: 1, textTransform: 'uppercase' }}>⚡ Quick Tips</div>
+          <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>Science-backed daily hacks</div>
         </div>
-        <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100">
-          6 Core Protocols
-        </span>
+        <span style={{
+          background: '#ede9fe', color: '#5b21b6',
+          borderRadius: 999, padding: '4px 10px',
+          fontSize: 11, fontWeight: 700,
+        }}>{TIPS.length} tips</span>
       </div>
 
-      <div className="space-y-3">
-        {AIR_TIPS.map((tip) => (
-          <div
-            key={tip.title}
-            className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50/30 transition-all group"
-          >
-            <div className="flex items-start gap-3">
-              <span className="text-2xl p-2 rounded-xl bg-white border border-slate-100 shadow-xs flex-shrink-0 group-hover:scale-110 transition-transform">
-                {tip.icon}
-              </span>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between gap-2">
-                  <h4 className="text-xs font-bold text-slate-900 truncate">{tip.title}</h4>
-                  <span
-                    className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${tip.badgeColor}`}
-                  >
-                    {tip.badge}
-                  </span>
-                </div>
-                <p className="text-xs text-slate-600 mt-1 leading-relaxed">{tip.desc}</p>
+      {/* Tips list */}
+      <div style={{ padding: '12px 20px 20px' }}>
+        {TIPS.map((tip, i) => (
+          <div key={i} style={{
+            display: 'flex', gap: 12, alignItems: 'flex-start',
+            padding: '12px 0',
+            borderBottom: i < TIPS.length - 1 ? '1px solid #f3f0ff' : 'none',
+          }}>
+            {/* Icon */}
+            <div style={{
+              width: 36, height: 36, borderRadius: 10, flexShrink: 0,
+              background: tip.categoryBg,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 18,
+            }}>
+              {tip.emoji}
+            </div>
+
+            {/* Content */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: '#1a1a2e' }}>{tip.title}</span>
+                <span style={{
+                  background: tip.categoryBg, color: tip.categoryColor,
+                  borderRadius: 999, padding: '2px 8px',
+                  fontSize: 10, fontWeight: 700,
+                }}>{tip.category}</span>
               </div>
+              <p style={{ fontSize: 12, color: '#4b5563', lineHeight: 1.5, margin: 0 }}>{tip.desc}</p>
             </div>
           </div>
         ))}
