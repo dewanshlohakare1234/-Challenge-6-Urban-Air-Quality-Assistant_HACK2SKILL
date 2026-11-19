@@ -7,20 +7,25 @@ import ReactMarkdown from "react-markdown";
 interface ChatInterfaceProps {
   userProfile: UserProfile | null;
   city: string;
+  externalPrompt?: string;
+  onClearExternalPrompt?: () => void;
 }
 
-const SUGGESTED_PROMPTS = [
-  "🏠 How can I improve indoor air quality at home?",
-  "🚗 What are low-emission alternatives for my commute?",
-  "🍳 How does cooking on gas affect indoor air quality?",
-  "😷 Should my kids wear masks today?",
-  "🌱 What plants help purify indoor air?",
-  "🌙 How can I sleep better during high pollution nights?",
-  "📊 Explain the AQI scale for my family",
-  "⚡ Compare electric vs gas cooking for air quality",
+const QUICK_PROMPTS = [
+  "🌅 Daily Routine: Safe outdoor and ventilation hours",
+  "🌀 DIY Air Filter: MERV-13 box-fan build guide",
+  "🍳 Gas Stove Safety: Mitigating indoor NO₂ and ultrafines",
+  "👶 Kids Protection: Masking and school run protocols",
+  "🚗 Car Commute: Minimizing in-cabin PM2.5 exposure",
+  "😴 Night Routine: Setting purifiers for restorative sleep",
 ];
 
-export default function ChatInterface({ userProfile, city }: ChatInterfaceProps) {
+export default function ChatInterface({
+  userProfile,
+  city,
+  externalPrompt,
+  onClearExternalPrompt,
+}: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
@@ -29,30 +34,34 @@ export default function ChatInterface({ userProfile, city }: ChatInterfaceProps)
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
+  // Initialize welcome message
   useEffect(() => {
-    // Welcome message
     setMessages([
       {
         id: "welcome",
         role: "assistant",
-        content: `# 👋 Welcome to ClearAir!
+        content: `### 🌬️ Welcome to ClearAir!
 
-I'm your AI-powered air quality companion, here to help your family breathe easier.
+I'm your AI air defense companion, designed to help families navigate severe winter smog and urban pollution.
 
-**Here's how I can help:**
-- 🌅 Build low-emission morning routines
-- 🏠 Improve your indoor air quality
-- 🚗 Find cleaner commuting alternatives
-- 🍳 Cook with less indoor pollution
-- 📊 Understand what AQI numbers mean for your family
+**How I can assist your household:**
+- **🌅 Low-Emission Routines:** Identify thermal inversion windows to plan safer school drops & walks.
+- **🏠 Indoor Air Hacks:** Low-cost filtration (DIY box-fans, wet mopping protocols, plant air purifiers).
+- **🚗 Clean Transit Alternatives:** Cut personal vehicle exposure and calculate saved emissions.
+- **🍳 Stove & Kitchen Safety:** Eliminate toxic indoor nitrogen dioxide from cooking burners.
+- **📊 Vulnerability Guidance:** Tailored metrics for young children, elderly parents, and asthmatics.
 
-**${city ? `I can see you're in ${city}.` : "Tell me your city"}** Ask me anything about managing air quality in your daily life — I'll give you practical, science-backed advice tailored to your situation.
+${
+  userProfile?.familyName
+    ? `**Profile Loaded:** Configured for **${userProfile.familyName}** in **${city}**.`
+    : `**Location Active:** Monitoring **${city || "your region"}**.`
+}
 
-> 💡 **Quick Win:** Right now, close any windows if outdoor AQI > 150 and turn on any air purifier you have.`,
+Ask any question below or click a quick prompt to generate a personalized action plan!`,
         timestamp: new Date(),
       },
     ]);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [userProfile?.familyName, city]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -85,7 +94,7 @@ I'm your AI-powered air quality companion, here to help your family breathe easi
 
       try {
         const enrichedMessage = userProfile
-          ? `[User is in ${city}] ${content}`
+          ? `[User location: ${city}] ${content}`
           : content;
 
         const res = await fetch("/api/chat", {
@@ -141,7 +150,7 @@ I'm your AI-powered air quality companion, here to help your family breathe easi
                 ? {
                     ...m,
                     content:
-                      "⚠️ I encountered an issue. Please check your API key and try again.",
+                      "⚠️ Temporary connection issue. Please check your network or API credentials.",
                   }
                 : m
             )
@@ -154,6 +163,14 @@ I'm your AI-powered air quality companion, here to help your family breathe easi
     },
     [isStreaming, previousInteractionId, userProfile, city]
   );
+
+  // Handle external prompts sent from hero input
+  useEffect(() => {
+    if (externalPrompt && externalPrompt.trim()) {
+      sendMessage(externalPrompt);
+      if (onClearExternalPrompt) onClearExternalPrompt();
+    }
+  }, [externalPrompt, sendMessage, onClearExternalPrompt]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -173,73 +190,73 @@ I'm your AI-powered air quality companion, here to help your family breathe easi
   };
 
   return (
-    <div
-      className="rounded-2xl border border-slate-800 flex flex-col"
-      style={{ background: "var(--card)", height: "calc(100vh - 160px)", minHeight: "500px" }}
-    >
-      {/* Chat Header */}
-      <div className="px-5 py-3 border-b border-slate-800 flex items-center justify-between flex-shrink-0">
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-          <span className="text-sm font-medium text-slate-300">
-            ClearAir Assistant
-            {userProfile?.familyName && (
-              <span className="text-slate-500 ml-1">· {userProfile.familyName}</span>
-            )}
-          </span>
+    <div className="card-subtle rounded-3xl bg-white flex flex-col h-[740px] shadow-sm overflow-hidden border border-slate-200">
+      {/* Chat Sub-Header */}
+      <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/70 flex items-center justify-between flex-shrink-0">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center text-white text-sm shadow-xs font-bold">
+            🌬️
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-extrabold text-slate-900">ClearAir AI Counselor</h3>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                Gemini 3.8 Flash
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-500">
+              {userProfile?.familyName ? `Tailored for ${userProfile.familyName}` : "Adaptive Family Air Guidance"}
+            </p>
+          </div>
         </div>
-        {previousInteractionId && (
+
+        {messages.length > 1 && (
           <button
             onClick={() => {
               setMessages([]);
               setPreviousInteractionId(null);
             }}
-            className="text-xs text-slate-600 hover:text-slate-400 transition-colors"
+            className="text-xs font-semibold text-slate-500 hover:text-indigo-600 px-3 py-1.5 rounded-xl hover:bg-slate-200/50 transition-colors"
           >
-            New Chat
+            Clear History
           </button>
         )}
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+      {/* Messages Feed */}
+      <div className="flex-1 overflow-y-auto p-6 space-y-4">
         {messages.map((msg) => (
           <div
             key={msg.id}
-            className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} fade-in-up`}
+            className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} animate-in fade-in duration-200`}
           >
             {msg.role === "assistant" && (
-              <div className="w-7 h-7 rounded-lg flex-shrink-0 flex items-center justify-center mr-2 mt-1 text-sm"
-                style={{ background: "linear-gradient(135deg, #0ea5e9, #6366f1)" }}>
-                🌬️
+              <div className="w-8 h-8 rounded-xl bg-violet-100 text-violet-700 flex-shrink-0 flex items-center justify-center mr-3 mt-1 text-sm font-bold shadow-xs border border-violet-200">
+                AI
               </div>
             )}
+
             <div
-              className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm ${
+              className={`max-w-[85%] rounded-3xl p-5 text-sm ${
                 msg.role === "user"
-                  ? "text-white rounded-tr-sm"
-                  : "text-slate-200 rounded-tl-sm border border-slate-700/50"
+                  ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-tr-sm shadow-md"
+                  : "bg-slate-50/90 text-slate-800 rounded-tl-sm border border-slate-200 shadow-xs"
               }`}
-              style={
-                msg.role === "user"
-                  ? { background: "linear-gradient(135deg, #0ea5e9, #6366f1)" }
-                  : { background: "rgba(15,23,42,0.8)" }
-              }
             >
               {msg.role === "assistant" ? (
                 msg.content ? (
-                  <div className="prose-dark">
+                  <div className="prose-air">
                     <ReactMarkdown>{msg.content}</ReactMarkdown>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-1 py-1">
-                    <span className="typing-dot w-2 h-2 rounded-full bg-sky-400 inline-block" />
-                    <span className="typing-dot w-2 h-2 rounded-full bg-sky-400 inline-block" />
-                    <span className="typing-dot w-2 h-2 rounded-full bg-sky-400 inline-block" />
+                  <div className="flex items-center gap-1.5 py-2 px-1">
+                    <span className="typing-dot" />
+                    <span className="typing-dot" />
+                    <span className="typing-dot" />
                   </div>
                 )
               ) : (
-                <p>{msg.content}</p>
+                <p className="leading-relaxed whitespace-pre-wrap">{msg.content}</p>
               )}
             </div>
           </div>
@@ -247,58 +264,55 @@ I'm your AI-powered air quality companion, here to help your family breathe easi
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Suggested Prompts */}
-      {messages.length <= 1 && (
-        <div className="px-4 pb-2 flex gap-2 overflow-x-auto scrollbar-none flex-shrink-0">
-          {SUGGESTED_PROMPTS.slice(0, 4).map((prompt) => (
-            <button
-              key={prompt}
-              onClick={() => sendMessage(prompt)}
-              className="flex-shrink-0 text-xs px-3 py-2 rounded-xl border border-slate-700 text-slate-400 hover:border-sky-600 hover:text-sky-400 transition-all whitespace-nowrap"
-              style={{ background: "rgba(15,23,42,0.6)" }}
-            >
-              {prompt}
-            </button>
-          ))}
-        </div>
-      )}
+      {/* Suggested Quick Prompts */}
+      <div className="px-6 py-2 bg-slate-50/50 border-t border-slate-100 overflow-x-auto flex gap-2 flex-shrink-0 scrollbar-none">
+        {QUICK_PROMPTS.map((q) => (
+          <button
+            key={q}
+            onClick={() => sendMessage(q)}
+            disabled={isStreaming}
+            className="flex-shrink-0 text-xs px-3.5 py-1.5 rounded-full bg-white border border-slate-200 hover:border-indigo-400 hover:text-indigo-600 text-slate-600 font-medium transition-all shadow-2xs whitespace-nowrap disabled:opacity-50"
+          >
+            {q}
+          </button>
+        ))}
+      </div>
 
-      {/* Input */}
-      <div className="px-4 pb-4 pt-2 flex-shrink-0 border-t border-slate-800">
-        <form onSubmit={handleSubmit} className="flex gap-2 items-end">
+      {/* Input Form Bar */}
+      <div className="p-4 bg-white border-t border-slate-100 flex-shrink-0">
+        <form onSubmit={handleSubmit} className="flex gap-2.5 items-end">
           <textarea
             ref={textareaRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ask about air quality, routines, indoor tips..."
-            rows={1}
+            placeholder="Ask about daily routines, indoor filtration hacks, or vehicle emissions..."
+            rows={2}
             disabled={isStreaming}
-            className="flex-1 bg-slate-900 text-sm text-white rounded-xl px-4 py-3 border border-slate-700 focus:border-sky-500 focus:outline-none placeholder:text-slate-500 resize-none transition-colors disabled:opacity-50"
-            style={{ maxHeight: "120px" }}
+            className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-indigo-500 transition-all resize-none disabled:opacity-50"
           />
+
           {isStreaming ? (
             <button
               type="button"
               onClick={handleStop}
-              className="px-4 py-3 rounded-xl text-white text-sm font-medium transition-all bg-red-600 hover:bg-red-700 flex-shrink-0"
+              className="px-5 py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all flex items-center gap-1.5 shadow-md flex-shrink-0"
             >
-              ⏹
+              <span>⏹</span> Stop
             </button>
           ) : (
             <button
               type="submit"
               disabled={!input.trim()}
-              className="px-4 py-3 rounded-xl text-white text-sm font-medium transition-all hover:opacity-90 disabled:opacity-30 flex-shrink-0"
-              style={{ background: "linear-gradient(135deg, #0ea5e9, #6366f1)" }}
+              className="px-6 py-3 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-xs font-bold transition-all shadow-md disabled:opacity-30 flex-shrink-0"
             >
-              ➤
+              Send ↗
             </button>
           )}
         </form>
-        <p className="text-xs text-slate-600 mt-2 text-center">
-          Shift+Enter for new line · Enter to send · Powered by Gemini 3.8 Flash
-        </p>
+        <div className="mt-2 text-center text-[11px] text-slate-400">
+          Enter to send · Shift+Enter for newline · Powered by Gemini 3.8 Flash
+        </div>
       </div>
     </div>
   );
